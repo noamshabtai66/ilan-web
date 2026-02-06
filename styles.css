@@ -1,250 +1,225 @@
 :root {
-  --bg-deep: #050608;
-  --gold: #d4af37;
-  --gold-glow: rgba(212, 175, 55, 0.4);
-  --text-main: #f5f5f7;
-  --text-dim: rgba(245, 245, 247, 0.6);
-  --glass: rgba(255, 255, 255, 0.02);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --shadow-lux: 0 40px 100px rgba(0, 0, 0, 0.8);
-  --font-header: 'Italiana', serif;
-  --font-body: 'Inter', sans-serif;
+  --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  --bg-light: #fafafa;
+  --text-main: #262626;
+  --text-dim: #8e8e8e;
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --font-main: 'Montserrat', sans-serif;
+  --font-heb: 'Rubik', sans-serif;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  cursor: none !important;
-  /* Force custom cursor */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background-color: var(--bg-deep);
+  background: var(--bg-light);
   color: var(--text-main);
-  font-family: var(--font-body);
-  line-height: 1.6;
+  font-family: var(--font-heb);
+  line-height: 1.5;
   overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Cursor */
+/* Custom Cursor - Subtle Ring */
 #custom-cursor {
   position: fixed;
-  width: 20px;
-  height: 20px;
-  background: white;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--text-dim);
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
-  mix-blend-mode: difference;
-  transition: transform 0.15s ease-out, opacity 0.3s ease;
+  transition: transform 0.1s ease-out, background 0.3s ease;
 }
 
-#custom-cursor.hovering {
-  transform: scale(3.5);
-  background: var(--gold);
+#custom-cursor.active {
+  transform: scale(1.5);
+  background: rgba(255, 0, 100, 0.1);
+  border-color: #bc1888;
 }
 
-/* Noise Texture */
-.noise {
+/* Heart Overlay */
+#heart-overlay {
   position: fixed;
-  inset: 0;
-  z-index: 9998;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.03;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 100px;
+  z-index: 1000;
   pointer-events: none;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Background & Mesh */
+#heart-overlay.animate {
+  transform: translate(-50%, -50%) scale(1.5);
+  opacity: 1;
+}
+
+/* Background */
 .bg {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(circle at top right, #1a1b1f 0%, var(--bg-deep) 100%);
+  background: #fff;
 }
 
 .mesh {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(at 10% 20%, rgba(212, 175, 55, 0.05) 0px, transparent 50%),
-    radial-gradient(at 90% 80%, rgba(100, 100, 255, 0.05) 0px, transparent 50%);
-  filter: blur(80px);
+  background: var(--ig-gradient);
+  opacity: 0.1;
+  filter: blur(100px);
 }
 
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.15;
-  animation: floatOrb 25s ease-in-out infinite;
+  filter: blur(80px);
+  opacity: 0.2;
+  animation: floatOrb 15s ease-in-out infinite;
 }
 
 .orb-1 {
-  width: 600px;
-  height: 600px;
-  background: var(--gold);
-  top: -200px;
-  left: -200px;
+  width: 500px;
+  height: 500px;
+  background: #f09433;
+  top: -100px;
+  left: -100px;
 }
 
 .orb-2 {
-  width: 500px;
-  height: 500px;
-  background: #2a2b30;
-  bottom: -100px;
-  right: -100px;
-  animation-delay: -5s;
+  width: 400px;
+  height: 400px;
+  background: #bc1888;
+  bottom: -50px;
+  right: -50px;
+  animation-delay: -3s;
 }
 
-/* Page Layout */
+/* Shell */
 .page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 24px;
+  padding: 40px 20px;
 }
 
 .shell {
-  width: min(1000px, 100%);
+  width: min(500px, 100%);
+  /* Phone-like width for IG feel */
   display: grid;
-  gap: 60px;
+  gap: 20px;
 }
 
-/* Hero Section */
+/* Hero - Post Style */
 .hero-cover {
-  position: relative;
-  aspect-ratio: 16 / 7;
-  border-radius: 2px;
-  /* Editorial square-ish look */
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: var(--shadow-lux);
+  box-shadow: var(--shadow-soft);
 }
 
 .cover-image {
-  position: absolute;
-  inset: 0;
-  background: url("assets/ilan.jpg") center 30% / cover no-repeat;
-  filter: grayscale(20%) brightness(0.8);
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.hero-cover:hover .cover-image {
-  transform: scale(1.03);
-}
-
-.cover-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 40%, rgba(5, 6, 8, 0.9) 100%);
+  aspect-ratio: 1 / 1;
+  background: url("assets/ilan.jpg") center center / cover no-repeat;
+  background-position: 38% 30%;
 }
 
 .cover-content {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 60px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  padding: 16px;
+  display: grid;
+  gap: 8px;
 }
 
 .hero-tag {
-  font-family: var(--font-header);
-  font-size: 1.1rem;
-  color: var(--gold);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-main);
 }
 
 h1 {
-  font-family: var(--font-header);
-  font-size: clamp(2.5rem, 8vw, 5.5rem);
-  font-weight: 300;
-  line-height: 1;
+  font-family: var(--font-main);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .hero-sub {
-  font-size: 1.1rem;
-  color: var(--text-dim);
-  max-width: 400px;
+  font-size: 0.9rem;
+  color: #262626;
 }
 
-/* Card Section */
+/* Card - Stories Feel */
 .card {
-  background: var(--glass);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border: 1px solid var(--glass-border);
-  padding: 80px;
-  display: grid;
-  gap: 48px;
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
   position: relative;
-  box-shadow: var(--shadow-lux);
-  border-radius: 4px;
+  overflow: hidden;
 }
 
 .card-header {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.chip {
-  font-family: var(--font-header);
-  font-size: 0.9rem;
-  color: var(--gold);
-  letter-spacing: 0.1em;
+  margin-bottom: 20px;
 }
 
 .card-meta h2 {
-  font-family: var(--font-header);
-  font-size: 3.5rem;
-  font-weight: 300;
-  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #262626;
+  margin-bottom: 4px;
 }
 
-/* Blessing Visuals */
-.blessing-container {
-  position: relative;
+.chip {
+  font-size: 0.8rem;
+  color: var(--text-dim);
 }
 
+/* Blessing Content */
 .blessing-lines {
-  font-size: 1.4rem;
-  line-height: 1.8;
-  color: var(--text-main);
-  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #262626;
 }
 
 .line {
   display: block;
   opacity: 0;
-  transform: translateY(30px) skewY(2deg);
-  animation: liquidIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(var(--i) * 0.1s);
+  transform: scale(0.95);
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation-delay: calc(var(--i) * 0.05s);
 }
 
 .line.spacer {
-  height: 1.4rem;
+  height: 1rem;
 }
 
-/* Signature */
+/* Signature - Story Circle */
 .signature {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding-top: 40px;
-  border-top: 1px solid var(--glass-border);
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #efefef;
 }
 
 .signature-avatar {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  border: 1px solid var(--gold);
-  padding: 3px;
+  position: relative;
+  padding: 2px;
+  background: var(--ig-gradient);
 }
 
 .signature-avatar img {
@@ -252,115 +227,103 @@ h1 {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  filter: sepia(20%) contrast(1.1);
-}
-
-.signature-meta {
-  display: flex;
-  flex-direction: column;
-}
-
-.signature-label {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  color: var(--gold);
-  letter-spacing: 0.1em;
+  border: 2px solid white;
 }
 
 .signature-name {
-  font-family: var(--font-header);
-  font-size: 2rem;
-  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.signature-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
 }
 
 /* Actions */
 .card-actions {
+  margin-top: 20px;
   display: grid;
-  gap: 40px;
+  gap: 12px;
 }
 
 .primary {
-  background: transparent;
-  border: 1px solid var(--gold);
-  color: var(--gold);
-  padding: 24px 48px;
-  font-family: var(--font-header);
-  font-size: 1.2rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  border-radius: 2px;
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
-  position: relative;
+  background: #0095f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 700;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
 }
 
 .primary:hover {
-  background: var(--gold);
-  color: var(--bg-deep);
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px var(--gold-glow);
+  opacity: 0.8;
 }
 
 .actions-main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
 }
 
 .music-controls {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 20px;
 }
 
 .secondary,
 .ghost {
   background: transparent;
-  border: 1px solid var(--glass-border);
-  color: var(--text-dim);
-  padding: 12px 24px;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  transition: all 0.3s ease;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.secondary.is-playing {
-  border-color: var(--gold);
-  color: var(--gold);
-}
-
+/* Navigation Dots */
 .nav-wrap {
   display: flex;
-  align-items: center;
-  gap: 32px;
+  justify-content: center;
+  margin-top: 12px;
 }
 
 .blessing-dots {
   display: flex;
-  gap: 12px;
+  gap: 6px;
 }
 
 .dot {
   width: 6px;
   height: 6px;
-  background: var(--glass-border);
+  background: #a8a8a8;
   border-radius: 50%;
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
 }
 
 .dot.is-active {
-  background: var(--gold);
-  transform: scale(2);
-  box-shadow: 0 0 10px var(--gold-glow);
+  background: #0095f6;
+  transform: scale(1.2);
+}
+
+/* Confetti Styles Override - Bubble Pop */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
 }
 
 /* Animations */
-@keyframes liquidIn {
+@keyframes popIn {
   to {
     opacity: 1;
-    transform: translateY(0) skewY(0);
+    transform: scale(1);
   }
 }
 
@@ -372,34 +335,12 @@ h1 {
   }
 
   50% {
-    transform: translate(50px, 100px);
+    transform: translate(30px, 30px);
   }
 }
 
-/* Editorial Style Overrides */
-@media (max-width: 768px) {
-  .hero-cover {
-    aspect-ratio: 1 / 1;
-  }
-
-  .card {
-    padding: 40px 24px;
-  }
-
-  .cover-content {
-    padding: 24px;
-  }
-
-  .card-meta h2 {
-    font-size: 2.5rem;
-  }
-
-  .actions-main {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .primary {
-    padding: 18px;
+@media (max-width: 480px) {
+  .shell {
+    width: 100%;
   }
 }

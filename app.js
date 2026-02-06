@@ -41,7 +41,9 @@ let currentIndex = 0;
 let isTransitioning = false;
 
 // DOM Elements
+const heartOverlay = document.getElementById("heart-overlay");
 const cursor = document.getElementById("custom-cursor");
+const card = document.querySelector(".card");
 const titleEl = document.querySelector("[data-title]");
 const signatureNameEl = document.querySelector("[data-signature-name]");
 const signaturePhotoEl = document.querySelector("[data-signature-photo]");
@@ -58,29 +60,22 @@ const dotsEl = document.getElementById("blessing-dots");
 const canvas = document.getElementById("confetti-canvas");
 const ctx = canvas.getContext("2d");
 
-// Custom Cursor Tracking
+// Cursor tracking
 document.addEventListener("mousemove", (e) => {
   cursor.style.left = e.clientX + "px";
   cursor.style.top = e.clientY + "px";
 });
 
-// Magnetic Buttons Effect
-const magneticElements = document.querySelectorAll(".primary, .secondary, .ghost, .dot");
-magneticElements.forEach((el) => {
-  el.addEventListener("mousemove", (e) => {
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    el.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
-    cursor.classList.add("hovering");
-  });
-  el.addEventListener("mouseleave", () => {
-    el.style.transform = "translate(0, 0)";
-    cursor.classList.remove("hovering");
-  });
+// Double click to like
+card.addEventListener("dblclick", () => {
+  heartOverlay.classList.remove("animate");
+  void heartOverlay.offsetWidth; // trigger reflow
+  heartOverlay.classList.add("animate");
+  setTimeout(() => heartOverlay.classList.remove("animate"), 1000);
+  burst(); // Extra sparkle on like
 });
 
-// Confetti System (Masterpiece Gold Dust)
+// Bubble Confetti (IG Pop)
 let particles = [];
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -93,29 +88,27 @@ class Particle {
   constructor() {
     this.x = Math.random() * canvas.width;
     this.y = canvas.height + 10;
-    this.size = Math.random() * 5 + 2;
-    this.speedY = Math.random() * -18 - 8;
-    this.speedX = Math.random() * 8 - 4;
-    this.gravity = 0.3;
-    this.color = Math.random() > 0.5 ? "#d4af37" : "#f5f5f7"; // Gold & White
-    this.rotation = Math.random() * 360;
+    this.size = Math.random() * 12 + 4;
+    this.speedY = Math.random() * -20 - 10;
+    this.speedX = Math.random() * 10 - 5;
+    this.gravity = 0.5;
+    this.colors = ["#f09433", "#e6683c", "#dc2743", "#cc2366", "#bc1888"];
+    this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
     this.opacity = 1;
   }
   update() {
     this.speedY += this.gravity;
     this.y += this.speedY;
     this.x += this.speedX;
-    if (this.speedY > 0) this.opacity -= 0.015;
+    if (this.speedY > 0) this.opacity -= 0.02;
   }
   draw() {
     ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate((this.rotation * Math.PI) / 180);
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle = this.color;
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = this.color;
-    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 }
@@ -131,13 +124,13 @@ function animateParticles() {
 }
 
 function burst() {
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 60; i++) {
     particles.push(new Particle());
   }
   animateParticles();
 }
 
-// Cinematic Content Rendering
+// Bouncy Content Rendering
 function renderBlessing(index, direction = "next") {
   if (isTransitioning) return;
   isTransitioning = true;
@@ -145,15 +138,15 @@ function renderBlessing(index, direction = "next") {
   const blessing = blessings[index];
 
   // Fade Out
-  linesEl.style.transition = "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
+  linesEl.style.transition = "opacity 0.3s ease, transform 0.3s ease";
   linesEl.style.opacity = "0";
-  linesEl.style.transform = direction === "next" ? "translateY(-40px)" : "translateY(40px)";
+  linesEl.style.transform = "scale(0.95)";
 
   setTimeout(() => {
     titleEl.textContent = blessing.title;
     signatureNameEl.textContent = blessing.from;
     signaturePhotoEl.src = blessing.photo;
-    progressEl.textContent = `PAGE ${index + 1} // ${blessings.length}`;
+    progressEl.textContent = `Post ${index + 1} of ${blessings.length}`;
 
     linesEl.innerHTML = blessing.text
       .split("\n")
@@ -166,28 +159,27 @@ function renderBlessing(index, direction = "next") {
     updateDots(index);
     updateButtons(index);
 
-    // Fade In
-    linesEl.style.transform = direction === "next" ? "translateY(40px)" : "translateY(-40px)";
+    // Fade In (Bouncy Pop)
+    linesEl.style.transform = "scale(1.1)";
     requestAnimationFrame(() => {
       linesEl.style.opacity = "1";
-      linesEl.style.transform = "translateY(0)";
+      linesEl.style.transform = "scale(1)";
       setTimeout(() => {
         isTransitioning = false;
-      }, 600);
+      }, 300);
     });
-  }, 600);
+  }, 300);
 }
 
 function updateDots(index) {
   dotsEl.innerHTML = blessings
-    .map((_, i) => `<button class="dot ${i === index ? "is-active" : ""}" aria-label="PAGE ${i + 1}"></button>`)
+    .map((_, i) => `<button class="dot ${i === index ? "is-active" : ""}" aria-label="Story ${i + 1}"></button>`)
     .join("");
   dotsEl.querySelectorAll(".dot").forEach((dot, i) => {
     dot.onclick = () => {
       if (i !== currentIndex) {
-        const dir = i > currentIndex ? "next" : "prev";
         currentIndex = i;
-        renderBlessing(currentIndex, dir);
+        renderBlessing(currentIndex);
       }
     };
   });
@@ -202,30 +194,28 @@ function updateButtons(index) {
 nextBtn.onclick = () => {
   if (currentIndex < blessings.length - 1) {
     currentIndex++;
-    renderBlessing(currentIndex, "next");
+    renderBlessing(currentIndex);
   }
 };
 
 prevBtn.onclick = () => {
   if (currentIndex > 0) {
     currentIndex--;
-    renderBlessing(currentIndex, "prev");
+    renderBlessing(currentIndex);
   }
 };
 
 celebrateBtn.onclick = burst;
 
-// Music Manager
+// Music Manager (Lo-fi/IG vibes)
 const tracks = [
-  { name: "LUXURY AMBIENT", url: "https://cdn.pixabay.com/download/audio/2023/04/04/audio_31de4131a9.mp3?filename=acoustic-guitar-113983.mp3" },
-  { name: "STARS ALIGNED", url: "https://cdn.pixabay.com/download/audio/2023/03/25/audio_c3aa6a5b4b.mp3?filename=sunny-day-14569.mp3" }
+  { name: "CHILL SOCIAL", url: "https://cdn.pixabay.com/download/audio/2021/11/25/audio_b2f9012f2c.mp3?filename=lofi-study-112191.mp3" },
+  { name: "CITY VIBES", url: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f694a.mp3?filename=lofi-chill-113917.mp3" }
 ];
 let currentTrack = 0;
 
 function updateMusicUI() {
   musicLabel.textContent = tracks[currentTrack].name;
-  musicToggle.classList.toggle("is-playing", !bgMusic.paused);
-  musicToggle.textContent = bgMusic.paused ? "PLAY SCORE" : "MUTE SCORE";
 }
 
 musicToggle.onclick = () => {
@@ -235,7 +225,6 @@ musicToggle.onclick = () => {
   } else {
     bgMusic.pause();
   }
-  updateMusicUI();
 };
 
 musicNext.onclick = () => {
@@ -244,15 +233,6 @@ musicNext.onclick = () => {
   bgMusic.play();
   updateMusicUI();
 };
-
-// Touch Gestures
-let touchStartX = 0;
-document.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
-document.addEventListener("touchend", (e) => {
-  const touchEndX = e.changedTouches[0].clientX;
-  if (touchStartX - touchEndX > 80) nextBtn.click();
-  if (touchEndX - touchStartX > 80) prevBtn.click();
-}, { passive: true });
 
 // Initial State
 renderBlessing(0);
