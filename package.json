@@ -1,0 +1,7 @@
+{
+  "name": "ilan-birthday-website",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/verify-build.js"
+  }
+}
