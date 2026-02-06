@@ -41,9 +41,8 @@ let currentIndex = 0;
 let isTransitioning = false;
 
 // DOM Elements
-const card = document.querySelector(".card");
+const cursor = document.getElementById("custom-cursor");
 const titleEl = document.querySelector("[data-title]");
-const signatureEl = document.querySelector("[data-signature]");
 const signatureNameEl = document.querySelector("[data-signature-name]");
 const signaturePhotoEl = document.querySelector("[data-signature-photo]");
 const progressEl = document.getElementById("blessing-progress");
@@ -59,7 +58,29 @@ const dotsEl = document.getElementById("blessing-dots");
 const canvas = document.getElementById("confetti-canvas");
 const ctx = canvas.getContext("2d");
 
-// Confetti System
+// Custom Cursor Tracking
+document.addEventListener("mousemove", (e) => {
+  cursor.style.left = e.clientX + "px";
+  cursor.style.top = e.clientY + "px";
+});
+
+// Magnetic Buttons Effect
+const magneticElements = document.querySelectorAll(".primary, .secondary, .ghost, .dot");
+magneticElements.forEach((el) => {
+  el.addEventListener("mousemove", (e) => {
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    el.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+    cursor.classList.add("hovering");
+  });
+  el.addEventListener("mouseleave", () => {
+    el.style.transform = "translate(0, 0)";
+    cursor.classList.remove("hovering");
+  });
+});
+
+// Confetti System (Masterpiece Gold Dust)
 let particles = [];
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -72,21 +93,19 @@ class Particle {
   constructor() {
     this.x = Math.random() * canvas.width;
     this.y = canvas.height + 10;
-    this.size = Math.random() * 8 + 4;
-    this.speedY = Math.random() * -15 - 10;
-    this.speedX = Math.random() * 6 - 3;
-    this.gravity = 0.4;
-    this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+    this.size = Math.random() * 5 + 2;
+    this.speedY = Math.random() * -18 - 8;
+    this.speedX = Math.random() * 8 - 4;
+    this.gravity = 0.3;
+    this.color = Math.random() > 0.5 ? "#d4af37" : "#f5f5f7"; // Gold & White
     this.rotation = Math.random() * 360;
-    this.rotationSpeed = Math.random() * 10 - 5;
     this.opacity = 1;
   }
   update() {
     this.speedY += this.gravity;
     this.y += this.speedY;
     this.x += this.speedX;
-    this.rotation += this.rotationSpeed;
-    if (this.speedY > 0) this.opacity -= 0.01;
+    if (this.speedY > 0) this.opacity -= 0.015;
   }
   draw() {
     ctx.save();
@@ -94,6 +113,8 @@ class Particle {
     ctx.rotate((this.rotation * Math.PI) / 180);
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle = this.color;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = this.color;
     ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
     ctx.restore();
   }
@@ -110,77 +131,56 @@ function animateParticles() {
 }
 
 function burst() {
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 200; i++) {
     particles.push(new Particle());
   }
   animateParticles();
 }
 
-// Card Tilt
-function handleTilt(e) {
-  if (window.innerWidth < 768) return;
-  const rect = card.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  const centerX = rect.width / 2;
-  const centerY = rect.height / 2;
-  const rotateX = (centerY - y) / 20;
-  const rotateY = (x - centerX) / 20;
-  card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-}
-
-function resetTilt() {
-  card.style.transform = "rotateX(0) rotateY(0)";
-}
-
-card.addEventListener("mousemove", handleTilt);
-card.addEventListener("mouseleave", resetTilt);
-
-// Content Management
+// Cinematic Content Rendering
 function renderBlessing(index, direction = "next") {
   if (isTransitioning) return;
   isTransitioning = true;
 
   const blessing = blessings[index];
-  
-  // Animation Phase 1: Out
-  linesEl.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+
+  // Fade Out
+  linesEl.style.transition = "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
   linesEl.style.opacity = "0";
-  linesEl.style.transform = direction === "next" ? "translateX(-20px)" : "translateX(20px)";
+  linesEl.style.transform = direction === "next" ? "translateY(-40px)" : "translateY(40px)";
 
   setTimeout(() => {
-    // Update Content
     titleEl.textContent = blessing.title;
     signatureNameEl.textContent = blessing.from;
     signaturePhotoEl.src = blessing.photo;
-    progressEl.textContent = `ברכה ${index + 1} מתוך ${blessings.length}`;
-    
+    progressEl.textContent = `PAGE ${index + 1} // ${blessings.length}`;
+
     linesEl.innerHTML = blessing.text
       .split("\n")
       .map((line, i) => {
         const trimmed = line.trim();
-        return `<span class="line ${trimmed === "" ? "spacer" : ""}" style="--i: ${i}">${trimmed || "&nbsp;" }</span>`;
+        return `<span class="line ${trimmed === "" ? "spacer" : ""}" style="--i: ${i}">${trimmed || "&nbsp;"}</span>`;
       })
       .join("");
 
     updateDots(index);
     updateButtons(index);
 
-    // Animation Phase 2: In
-    linesEl.style.transform = direction === "next" ? "translateX(20px)" : "translateX(-20px)";
+    // Fade In
+    linesEl.style.transform = direction === "next" ? "translateY(40px)" : "translateY(-40px)";
     requestAnimationFrame(() => {
       linesEl.style.opacity = "1";
-      linesEl.style.transform = "translateX(0)";
+      linesEl.style.transform = "translateY(0)";
       setTimeout(() => {
         isTransitioning = false;
-      }, 400);
+      }, 600);
     });
-  }, 400);
+  }, 600);
 }
 
 function updateDots(index) {
   dotsEl.innerHTML = blessings
-    .map((_, i) => `<button class="dot ${i === index ? "is-active" : ""}" aria-label="ברכה ${i + 1}"></button>`)
+    .map((_, i) => `<button class="dot ${i === index ? "is-active" : ""}" aria-label="PAGE ${i + 1}"></button>`)
     .join("");
   dotsEl.querySelectorAll(".dot").forEach((dot, i) => {
     dot.onclick = () => {
@@ -215,23 +215,23 @@ prevBtn.onclick = () => {
 
 celebrateBtn.onclick = burst;
 
-// Music (Simplified for wow)
+// Music Manager
 const tracks = [
-  { name: "Sunny Day", url: "https://cdn.pixabay.com/download/audio/2023/03/25/audio_c3aa6a5b4b.mp3?filename=sunny-day-14569.mp3" },
-  { name: "Happy Background", url: "https://cdn.pixabay.com/download/audio/2023/04/04/audio_234d61636d.mp3?filename=happy-background-113996.mp3" }
+  { name: "LUXURY AMBIENT", url: "https://cdn.pixabay.com/download/audio/2023/04/04/audio_31de4131a9.mp3?filename=acoustic-guitar-113983.mp3" },
+  { name: "STARS ALIGNED", url: "https://cdn.pixabay.com/download/audio/2023/03/25/audio_c3aa6a5b4b.mp3?filename=sunny-day-14569.mp3" }
 ];
 let currentTrack = 0;
 
 function updateMusicUI() {
   musicLabel.textContent = tracks[currentTrack].name;
   musicToggle.classList.toggle("is-playing", !bgMusic.paused);
-  musicToggle.textContent = bgMusic.paused ? "נגן מוזיקה" : "כבה מוזיקה";
+  musicToggle.textContent = bgMusic.paused ? "PLAY SCORE" : "MUTE SCORE";
 }
 
 musicToggle.onclick = () => {
   if (bgMusic.paused) {
     if (!bgMusic.src) bgMusic.src = tracks[currentTrack].url;
-    bgMusic.play().catch(() => alert("נא ללחוץ שוב להפעלת מוזיקה"));
+    bgMusic.play().catch(() => { });
   } else {
     bgMusic.pause();
   }
@@ -247,13 +247,13 @@ musicNext.onclick = () => {
 
 // Touch Gestures
 let touchStartX = 0;
-card.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
-card.addEventListener("touchend", (e) => {
+document.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener("touchend", (e) => {
   const touchEndX = e.changedTouches[0].clientX;
-  if (touchStartX - touchEndX > 50) nextBtn.click();
-  if (touchEndX - touchStartX > 50) prevBtn.click();
+  if (touchStartX - touchEndX > 80) nextBtn.click();
+  if (touchEndX - touchStartX > 80) prevBtn.click();
 }, { passive: true });
 
-// Init
+// Initial State
 renderBlessing(0);
 updateMusicUI();
